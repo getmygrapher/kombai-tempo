@@ -1,0 +1,556 @@
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Onboarding System Styles */
+.text-gradient {
+  background: linear-gradient(135deg, #6366F1 0%, #EC4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.onboarding-card {
+  transition: all 0.3s ease-in-out;
+}
+
+.onboarding-card:hover {
+  transform: translateY(-4px);
+}
+
+.step-indicator {
+  transition: all 0.3s ease-in-out;
+}
+
+.step-indicator.completed {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+}
+
+.step-indicator.active {
+  background: linear-gradient(135deg, #6366F1 0%, #EC4899 100%);
+}
+
+.category-selection-card {
+  transition: all 0.3s ease-in-out;
+}
+
+.category-selection-card:hover {
+  transform: translateY(-4px);
+}
+
+.location-gps-button {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  transition: all 0.3s ease-in-out;
+}
+
+.location-gps-button:hover {
+  transform: translateY(-2px);
+}
+
+.profile-photo-upload {
+  transition: all 0.2s ease-in-out;
+}
+
+.profile-photo-upload:hover {
+  transform: scale(1.02);
+}
+
+.pricing-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.pricing-card:hover {
+  transform: translateY(-2px);
+}
+
+.equipment-chip {
+  transition: all 0.2s ease-in-out;
+}
+
+.equipment-chip:hover {
+  transform: translateY(-1px);
+}
+
+.availability-day-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.availability-day-card:hover {
+  transform: translateY(-2px);
+}
+
+.celebration-confetti {
+  animation: confetti 2s ease-in-out;
+}
+
+@keyframes confetti {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+}
+
+.welcome-feature-card {
+  transition: all 0.3s ease-in-out;
+}
+
+.welcome-feature-card:hover {
+  transform: translateY(-4px);
+}
+
+.auth-google-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.auth-google-button:hover {
+  transform: translateY(-1px);
+}
+
+/* Mobile optimizations for onboarding */
+@media (max-width: 768px) {
+  .onboarding-header {
+    padding: 16px;
+  }
+  
+  .category-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .type-selection-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .availability-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .welcome-features {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .step-navigation {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    z-index: 100;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+}
+
+:root{
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  margin: auto;
+}
+
+/* Availability Management System Styles */
+.availability-calendar {
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+}
+
+.availability-date-cell {
+  transition: all 0.2s ease-in-out;
+}
+
+.availability-date-cell:hover {
+  transform: scale(1.02);
+}
+
+.time-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.recurring-pattern-preview {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+  border-radius: 12px;
+}
+
+/* Chart animations */
+.recharts-wrapper {
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+}
+
+/* Communication System Styles */
+.message-bubble {
+  transition: all 0.2s ease-in-out;
+}
+
+.message-bubble:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.chat-input {
+  transition: all 0.2s ease-in-out;
+}
+
+.conversation-item {
+  transition: all 0.2s ease-in-out;
+}
+
+.conversation-item:hover {
+  transform: translateX(4px);
+}
+
+.typing-indicator {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.online-indicator {
+  animation: pulse 2s infinite;
+}
+
+.unread-badge {
+  animation: bounce 0.5s ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Homepage System Styles */
+.homepage-search-bar {
+  transition: all 0.2s ease-in-out;
+}
+
+.homepage-search-bar:focus-within {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+}
+
+.category-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+}
+
+.featured-carousel {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.featured-carousel::-webkit-scrollbar {
+  height: 6px;
+}
+
+.featured-carousel::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.featured-carousel::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.featured-carousel::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.city-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.city-card:hover {
+  transform: translateY(-4px);
+}
+
+.content-toggle {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .message-bubble {
+    max-width: 85%;
+  }
+  
+  .chat-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .homepage-search-bar {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .featured-carousel {
+    padding: 0 16px;
+  }
+}
+
+/* Profile View System Styles */
+.profile-hero-cover {
+  transition: all 0.3s ease-in-out;
+}
+
+.profile-hero-cover:hover {
+  transform: scale(1.02);
+}
+
+.profile-navigation-tabs {
+  transition: all 0.2s ease-in-out;
+}
+
+.portfolio-image {
+  transition: all 0.2s ease-in-out;
+}
+
+.portfolio-image:hover {
+  transform: scale(1.02);
+}
+
+.equipment-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.equipment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.contact-actions {
+  transition: all 0.2s ease-in-out;
+}
+
+.lightbox-overlay {
+  backdrop-filter: blur(10px);
+}
+
+.availability-calendar-cell {
+  transition: all 0.2s ease-in-out;
+}
+
+.availability-calendar-cell:hover {
+  transform: scale(1.02);
+}
+
+.professional-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.professional-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Mobile optimizations for profile view */
+@media (max-width: 768px) {
+  .profile-hero-avatar {
+    width: 100px !important;
+    height: 100px !important;
+  }
+  
+  .profile-navigation-tabs {
+    font-size: 14px;
+  }
+  
+  .contact-actions-mobile {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+  }
+  
+  .portfolio-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .equipment-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Community Posing Library Styles */
+.community-pose-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.community-pose-card:hover {
+  transform: translateY(-4px);
+}
+
+.pose-image-modal {
+  backdrop-filter: blur(10px);
+}
+
+.difficulty-badge {
+  transition: all 0.2s ease-in-out;
+}
+
+.interaction-button {
+  transition: all 0.1s ease-in-out;
+}
+
+.interaction-button:hover {
+  transform: scale(1.02);
+}
+
+.like-animation {
+  animation: likeHeartBeat 0.3s ease-in-out;
+}
+
+@keyframes likeHeartBeat {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.filter-chip {
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-chip:hover {
+  transform: translateY(-1px);
+}
+
+.camera-settings-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.camera-settings-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.photographer-info {
+  transition: all 0.2s ease-in-out;
+}
+
+.community-search-bar {
+  transition: all 0.2s ease-in-out;
+}
+
+.community-search-bar:focus-within {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+}
+
+/* Mobile optimizations for community */
+@media (max-width: 768px) {
+  .community-pose-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+  
+  .pose-detail-modal {
+    padding: 0;
+  }
+  
+  .interaction-buttons {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    z-index: 100;
+  }
+  
+  .filter-bottom-sheet {
+    max-height: 85vh;
+  }
+  
+  .community-search-bar {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+/* Job System Filter Styles */
+.filter-modal-transition {
+  transition: all 0.3s ease-in-out;
+}
+
+.filter-chip-active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+  border-color: #6366F1;
+}
+
+.filter-chip-active:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+}
+
+.job-search-bar {
+  transition: all 0.2s ease-in-out;
+}
+
+.job-search-bar:focus-within {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+.job-filter-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.job-filter-button:hover {
+  transform: translateY(-1px);
+}
+
+.job-filter-button.active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+  border-color: #6366F1;
+}
+
+.job-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.job-card:hover {
+  transform: translateY(-2px);
+}
+
+.application-dialog {
+  backdrop-filter: blur(8px);
+}
+
+.filter-drawer-mobile {
+  border-top-left-radius: 16px !important;
+  border-top-right-radius: 16px !important;
+}
+
+/* Mobile optimizations for job system */
+@media (max-width: 768px) {
+  .job-search-section {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: white;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .filter-modal-mobile {
+    margin: 0;
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    height: 100vh;
+  }
+  
+  .job-feed-container {
+    padding: 0 16px;
+  }
+  
+  .job-card-mobile {
+    margin: 0 -8px;
+  }
+  
+  .filter-button-mobile {
+    position: sticky;
+    bottom: 16px;
+    z-index: 100;
+  }
+}
+
+/* IMPORTANT: Do not add any CSS reset rules to this file. */
