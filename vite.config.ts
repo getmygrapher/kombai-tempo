@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import path from "path";
 import tsconfigPaths from "vite-tsconfig-paths";
+
 const config = {
   mode: "development",
   build: {
@@ -30,6 +31,12 @@ const config = {
     }),
   ],
   resolve: {},
+  server: {
+    // @ts-ignore
+    allowedHosts: process.env.TEMPO === "true" ? true : undefined
+  }
 };
+
 config.plugins.push(tsconfigPaths());
+
 export default defineConfig(config);

@@ -109,8 +109,10 @@ export const CommunityLibraryPage: React.FC<CommunityLibraryPageProps> = ({
       
       setHasMore(response.hasMore);
       setPage(pageNum);
-    } catch (err) {
-      setError('Failed to load poses');
+    } catch (err: any) {
+      console.error('Failed to load poses:', err);
+      const errorMessage = err?.message || 'Failed to load poses. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -214,7 +216,15 @@ export const CommunityLibraryPage: React.FC<CommunityLibraryPageProps> = ({
 
           {/* Error State */}
           {error && (
-            <Alert severity="error" onClose={() => setError(null)}>
+            <Alert 
+              severity="error" 
+              onClose={() => setError(null)}
+              action={
+                <Button color="inherit" size="small" onClick={() => loadPoses()}>
+                  Retry
+                </Button>
+              }
+            >
               {error}
             </Alert>
           )}
@@ -227,9 +237,19 @@ export const CommunityLibraryPage: React.FC<CommunityLibraryPageProps> = ({
                   <Typography variant="h6" color="text.secondary" gutterBottom>
                     No poses found
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Try adjusting your filters or search terms
+                  <Typography variant="body2" color="text.secondary" paragraph>
+                    {poses.length === 0 
+                      ? 'The community library is empty. Be the first to contribute!'
+                      : 'Try adjusting your filters or search terms'}
                   </Typography>
+                  {poses.length === 0 && (
+                    <Button 
+                      variant="contained" 
+                      sx={{ mt: 2, borderRadius: communityTheme.layout.buttonBorderRadius }}
+                    >
+                      Contribute a Pose
+                    </Button>
+                  )}
                 </Box>
               ) : (
                 <>

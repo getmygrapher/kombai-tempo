@@ -70,12 +70,16 @@ const AppWithRouting: React.FC = () => {
   );
 };
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <ErrorBoundary>
-      <KombaiWrapper>
-        <AppWithRouting />
-      </KombaiWrapper>
-    </ErrorBoundary>
-  </StrictMode>,
-)
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  const root = createRoot(rootElement);
+  root.render(
+    <StrictMode>
+      <ErrorBoundary>
+        <KombaiWrapper>
+          <AppWithRouting />
+        </KombaiWrapper>
+      </ErrorBoundary>
+    </StrictMode>
+  );
+}
