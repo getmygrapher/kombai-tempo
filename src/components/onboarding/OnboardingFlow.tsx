@@ -86,13 +86,26 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
 
   // Navigation helpers
   // Exit handler that properly clears state and navigates
-  const handleExitOnboarding = () => {
-    // Clear onboarding state
-    setRegistrationStatus(RegistrationStatus.NOT_STARTED);
-    setCurrentStep(OnboardingStep.WELCOME);
-    
-    // Navigate to welcome screen
-    navigate('/welcome', { replace: true });
+  const handleExitOnboarding = async () => {
+    try {
+      // Sign out the user
+      await supabase.auth.signOut();
+      
+      // Clear onboarding state
+      setRegistrationStatus(RegistrationStatus.NOT_STARTED);
+      setCurrentStep(OnboardingStep.WELCOME);
+      
+      // Clear app state
+      setUser(null);
+      setAuthenticated(false);
+      
+      // Navigate to welcome screen
+      navigate('/welcome', { replace: true });
+    } catch (error) {
+      console.error('Error during exit:', error);
+      // Still navigate even if sign out fails
+      navigate('/welcome', { replace: true });
+    }
   };
 
   const navigateToStep = (step: OnboardingStep) => {

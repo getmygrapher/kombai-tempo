@@ -1,9 +1,18 @@
 import { create } from 'zustand';
-import { ProfileTab, ProfileViewData, ViewerPermissions } from '../data/profileViewSystemMockData';
+import profileViewService, { ProfileDetails, ViewerPermissions } from '../services/profileViewService';
+
+export enum ProfileTab {
+  OVERVIEW = 'overview',
+  PORTFOLIO = 'portfolio',
+  EQUIPMENT = 'equipment',
+  REVIEWS = 'reviews',
+  AVAILABILITY = 'availability'
+}
 
 interface ProfileData {
   [profileId: string]: {
-    data: ProfileViewData;
+    data: ProfileDetails;
+    viewerPermissions: ViewerPermissions;
     lastFetched: number;
     ttl: number;
   };
@@ -53,7 +62,7 @@ interface ProfileViewStore {
   
   // Profile management
   addToViewHistory: (profileId: string) => void;
-  toggleSaveProfile: (profileId: string) => void;
+  toggleSaveProfile: (profileId: string) => Promise<void>;
   setCurrentlyViewingProfile: (profileId: string | null) => void;
   
   // Utility actions
@@ -61,7 +70,7 @@ interface ProfileViewStore {
   clearProfileViewState: () => void;
   
   // Selectors (memoized)
-  getCurrentProfile: () => ProfileViewData | null;
+  getCurrentProfile: () => ProfileDetails | null;
   getViewerPermissions: () => ViewerPermissions | null;
   isProfileSaved: (profileId: string) => boolean;
 }
@@ -84,7 +93,7 @@ export const useProfileViewStore = create<ProfileViewStore>((set, get) => ({
   profileViewHistory: [],
   savedProfiles: [],
 
-  // Load profile with caching
+  // Load profile with caching and real backend data
   loadProfile: async (profileId: string) => {
     const state = get();
     const cached = state.profiles[profileId];
@@ -94,7 +103,7 @@ export const useProfileViewStore = create<ProfileViewStore>((set, get) => ({
     if (cached && (now - cached.lastFetched) < cached.ttl) {
       set({
         currentProfileId: profileId,
-        viewerPermissions: cached.data.viewerPermissions,
+        viewerPermissions: cached.viewerPermissions,
         error: null
       });
       get().addToViewHistory(profileId);
@@ -104,35 +113,35 @@ export const useProfileViewStore = create<ProfileViewStore>((set, get) => ({
     set({ isLoading: true, error: null, currentProfileId: profileId });
     
     try {
-      // Import mock data dynamically to avoid circular dependencies
-      const { mockProfessionalsData } = await import('../data/profileViewSystemMockData');
+      // Fetch profile details from backend
+      const profileData = await profileViewService.getProfileDetails(profileId);
       
-      if (!mockProfessionalsData[profileId]) {
+      if (!profileData) {
         throw new Error('Profile not found');
       }
+
+      // Calculate viewer permissions
+      const permissions = await profileViewService.calculateViewerPermissions(profileId);
       
-      const profileData = mockProfessionalsData[profileId];
+      // Track profile view
+      await profileViewService.trackView(profileId, 'direct', window.location.href);
       
       set((state) => ({
         profiles: {
           ...state.profiles,
           [profileId]: {
             data: profileData,
+            viewerPermissions: permissions,
             lastFetched: now,
             ttl: CACHE_TTL
           }
         },
-        viewerPermissions: profileData.viewerPermissions,
+        viewerPermissions: permissions,
         isLoading: false,
         error: null
       }));
       
       get().addToViewHistory(profileId);
-      
-      // Prefetch adjacent tab data (simulate)
-      setTimeout(() => {
-        console.log('Prefetching adjacent tab data for profile:', profileId);
-      }, 100);
       
     } catch (error) {
       set({
@@ -176,15 +185,23 @@ export const useProfileViewStore = create<ProfileViewStore>((set, get) => ({
     });
   },
 
-  toggleSaveProfile: (profileId: string) => {
-    set((state) => {
+  toggleSaveProfile: async (profileId: string) => {
+    try {
+      const state = get();
       const isSaved = state.savedProfiles.includes(profileId);
-      return {
+      
+      // Call backend to toggle save
+      await profileViewService.toggleSave(profileId);
+      
+      set((state) => ({
         savedProfiles: isSaved
           ? state.savedProfiles.filter(id => id !== profileId)
           : [...state.savedProfiles, profileId],
-      };
-    });
+      }));
+    } catch (error) {
+      console.error('Failed to toggle save profile:', error);
+      throw error;
+    }
   },
 
   setCurrentlyViewingProfile: (profileId: string | null) => {

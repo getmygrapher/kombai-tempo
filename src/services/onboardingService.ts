@@ -49,8 +49,34 @@ export const onboardingService = {
   },
 
   async ensureProfileExists(): Promise<void> {
-    const { error } = await supabase.rpc('ensure_profile_exists');
-    if (error) throw mapError(error);
+    try {
+      const uid = await this.getCurrentUserId();
+      
+      // Check if profile exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', uid)
+        .single();
+      
+      // If profile doesn't exist, create it
+      if (!existingProfile) {
+        const { error } = await supabase
+          .from('profiles')
+          .insert({ id: uid });
+        
+        if (error && error.code !== '23505') { // Ignore duplicate key errors
+          throw mapError(error);
+        }
+      }
+    } catch (error) {
+      // If it's not a "no user" error, log but don't throw
+      if (error instanceof Error && !error.message.includes('No authenticated user')) {
+        console.warn('ensureProfileExists warning:', error);
+      } else {
+        throw error;
+      }
+    }
   },
 
   async upsertBasicProfile(profile: BasicProfile): Promise<void> {
@@ -111,8 +137,35 @@ export const onboardingService = {
   },
 
   async completeStep(step: string): Promise<void> {
-    const { error } = await supabase.rpc('complete_onboarding_step', { step });
-    if (error) throw mapError(error);
+    try {
+      const uid = await this.getCurrentUserId();
+      
+      // Get current onboarding status
+      const { data: existingStatus } = await supabase
+        .from('onboarding_status')
+        .select('*')
+        .eq('user_id', uid)
+        .single();
+      
+      const completedSteps = existingStatus?.completed_steps || [];
+      if (!completedSteps.includes(step)) {
+        completedSteps.push(step);
+      }
+      
+      // Update onboarding status
+      const { error } = await supabase
+        .from('onboarding_status')
+        .upsert({
+          user_id: uid,
+          current_step: step,
+          completed_steps: completedSteps,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+      
+      if (error) throw mapError(error);
+    } catch (error) {
+      console.warn('completeStep warning:', error);
+    }
   },
 
   async getStatus(): Promise<{
@@ -120,8 +173,27 @@ export const onboardingService = {
     completed_steps?: string[];
     status?: string;
   } | null> {
-    const { data, error } = await supabase.rpc('get_onboarding_status');
-    if (error) throw mapError(error);
-    return data as any;
+    try {
+      const uid = await this.getCurrentUserId();
+      
+      const { data, error } = await supabase
+        .from('onboarding_status')
+        .select('*')
+        .eq('user_id', uid)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') { // Ignore "not found" errors
+        throw mapError(error);
+      }
+      
+      return data ? {
+        current_step: data.current_step,
+        completed_steps: data.completed_steps || [],
+        status: data.status
+      } : null;
+    } catch (error) {
+      console.warn('getStatus warning:', error);
+      return null;
+    }
   },
 };

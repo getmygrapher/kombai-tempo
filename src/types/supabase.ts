@@ -1875,6 +1875,62 @@ export type Database = {
         Args: { date_range_days?: number }
         Returns: Json
       }
+      get_profile_details: {
+        Args: { p_profile_id: string }
+        Returns: {
+          additional_locations: Json
+          avatar_url: string
+          average_rating: number
+          city: string
+          created_at: string
+          email_verified: boolean
+          equipment: Json
+          experience_level: string
+          full_name: string
+          identity_verified: boolean
+          instagram_handle: string
+          is_featured: boolean
+          is_top_rated: boolean
+          is_verified: boolean
+          phone: string
+          phone_verified: boolean
+          pin_code: string
+          portfolio_links: string[]
+          pricing: Json
+          professional_category: string
+          professional_type: string
+          professional_verified: boolean
+          profile_completion_percent: number
+          rating_distribution: Json
+          specializations: string[]
+          state: string
+          total_reviews: number
+          total_views: number
+          updated_at: string
+          user_id: string
+          work_radius_km: number
+        }[]
+      }
+      get_profile_portfolio: {
+        Args: { p_limit?: number; p_offset?: number; p_profile_id: string }
+        Returns: {
+          camera_model: string
+          category: string
+          created_at: string
+          description: string
+          display_order: number
+          exif_data: Json
+          id: string
+          image_url: string
+          is_featured: boolean
+          lens_model: string
+          likes_count: number
+          tags: string[]
+          thumbnail_url: string
+          title: string
+          views_count: number
+        }[]
+      }
       get_saved_profiles: {
         Args: {
           collection_name_param?: string

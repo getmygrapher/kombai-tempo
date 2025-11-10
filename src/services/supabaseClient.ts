@@ -4,9 +4,27 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
+// Validate environment variables
+if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('YOUR-PROJECT') || supabaseAnonKey.includes('YOUR-ANON-KEY')) {
+  console.error('Supabase environment variables are not properly configured');
+}
+
 export const supabase = createClient(
-  supabaseUrl || 'https://YOUR-PROJECT.supabase.co',
-  supabaseAnonKey || 'YOUR-ANON-KEY'
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key',
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    },
+    global: {
+      headers: {
+        'X-Client-Info': 'getmygrapher-web',
+      },
+    },
+  }
 );
 
 // Community Poses related types and functions
