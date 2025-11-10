@@ -10,8 +10,8 @@ if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('YOUR-PROJECT') || 
 }
 
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key',
+  supabaseUrl || 'https://pzpfouqngqzjsicqionw.supabase.co',
+  supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6cGZvdXFuZ3F6anNpY3Fpb253Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTg3NjQ4MDAsImV4cCI6MjAxNDM0MDgwMH0.KxYJv5Q1_3sH0S_ZKP9l4JLSh5NXhHHVD1kBTYiQXYE',
   {
     auth: {
       persistSession: true,
