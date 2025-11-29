@@ -1,21 +1,22 @@
 import { create } from 'zustand';
-import { 
-  User, 
-  ProfileFormData, 
-  EquipmentItem, 
-  PricingInfo, 
+import {
+  User,
+  ProfileFormData,
+  EquipmentItem,
+  PricingInfo,
   NotificationSettings,
   ProfileStats
 } from '../types';
-import { 
-  ProfileEditSection, 
-  EquipmentCondition, 
-  PricingStructure, 
-  VisibilityLevel, 
-  ProfileAnalyticsMetric, 
+import {
+  ProfileEditSection,
+  EquipmentCondition,
+  PricingStructure,
+  VisibilityLevel,
+  ProfileAnalyticsMetric,
   InstagramConnectionStatus,
-  VerificationStatus 
+  VerificationStatus
 } from '../types/enums';
+import { profileManagementService } from '../services/profileManagementService';
 
 // Extended types for profile management
 export interface PortfolioItem {
@@ -79,10 +80,10 @@ interface ProfileManagementStore {
   isLoading: boolean;
   isSaving: boolean;
   error: string | null;
-  
+
   // Current section
   currentSection: ProfileEditSection | null;
-  
+
   // Profile data
   profileDraft: ProfileFormData | null;
   equipmentDraft: EquipmentItem[];
@@ -93,161 +94,56 @@ interface ProfileManagementStore {
   verificationData: VerificationData;
   analytics: ProfileAnalytics;
   availabilityPreview: AvailabilityPreview;
-  
+
   // Actions
   setLoading: (loading: boolean) => void;
   setSaving: (saving: boolean) => void;
   setError: (error: string | null) => void;
   setCurrentSection: (section: ProfileEditSection | null) => void;
-  
+
   // Profile actions
   loadProfile: (userId: string) => Promise<void>;
   saveProfile: (data: ProfileFormData) => Promise<void>;
   updateProfileDraft: (data: Partial<ProfileFormData>) => void;
-  
+
   // Equipment actions
   saveEquipment: (equipment: EquipmentItem[]) => Promise<void>;
   addEquipment: (equipment: EquipmentItem) => Promise<void>;
   updateEquipment: (equipmentId: string, equipment: EquipmentItem) => Promise<void>;
   deleteEquipment: (equipmentId: string) => Promise<void>;
-  
+
   // Pricing actions
   savePricing: (pricing: PricingInfo) => Promise<void>;
   updatePricingDraft: (pricing: Partial<PricingInfo>) => void;
-  
+
   // Privacy actions
   savePrivacy: (settings: PrivacySettings) => Promise<void>;
   updatePrivacySettings: (settings: Partial<PrivacySettings>) => void;
-  
+
   // Portfolio actions
   savePortfolio: (portfolio: PortfolioItem[]) => Promise<void>;
   uploadPortfolioImage: (file: File) => Promise<PortfolioItem>;
   reorderPortfolio: (items: PortfolioItem[]) => Promise<void>;
   deletePortfolioItem: (itemId: string) => Promise<void>;
   updatePortfolioCaption: (itemId: string, caption: string) => Promise<void>;
-  
+
   // Instagram actions
   connectInstagram: () => Promise<void>;
   disconnectInstagram: () => Promise<void>;
   syncInstagramData: () => Promise<void>;
-  
+
   // Verification actions
   submitVerification: (type: string, data: any) => Promise<void>;
   checkVerificationStatus: () => Promise<void>;
-  
+
   // Analytics actions
   loadAnalytics: (dateRange?: { start: string; end: string }) => Promise<void>;
   trackProfileView: () => Promise<void>;
-  
+
   // Availability actions
   loadAvailabilityPreview: () => Promise<void>;
   updateAvailability: (data: any) => Promise<void>;
 }
-
-// Mock API functions with simulated latency
-const mockAPI = {
-  async loadProfile(userId: string): Promise<ProfileFormData> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // Return mock profile data
-    return {
-      basicInfo: {
-        name: 'Arjun Menon',
-        email: 'arjun.menon@example.com',
-        phone: '+919876543210',
-        alternatePhone: '+919876543211',
-        profilePhoto: 'https://i.pravatar.cc/150?img=1'
-      },
-      location: {
-        city: 'Kochi',
-        state: 'Kerala',
-        pinCode: '682001',
-        address: 'Marine Drive, Ernakulam',
-        preferredWorkLocations: ['Kochi', 'Thiruvananthapuram', 'Kozhikode']
-      },
-      professional: {
-        category: 'Photography' as any,
-        type: 'Wedding Photographer',
-        specializations: ['Wedding Photography', 'Portrait Photography'],
-        experience: '3-5 years' as any,
-        about: 'Passionate photographer with expertise in weddings and portraits.',
-        instagramHandle: '@arjun_captures'
-      },
-      equipment: [],
-      pricing: {
-        type: 'Per Event' as any,
-        rate: 25000,
-        isNegotiable: true
-      }
-    };
-  },
-
-  async saveProfile(data: ProfileFormData): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    // Simulate potential failure
-    if (Math.random() < 0.1) {
-      throw new Error('Failed to save profile');
-    }
-  },
-
-  async saveEquipment(equipment: EquipmentItem[]): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  },
-
-  async savePricing(pricing: PricingInfo): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 800));
-  },
-
-  async savePrivacy(settings: PrivacySettings): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 600));
-  },
-
-  async uploadPortfolioImage(file: File): Promise<PortfolioItem> {
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    return {
-      id: Date.now().toString(),
-      url: `https://picsum.photos/800/600?random=${Date.now()}`,
-      caption: '',
-      order: Date.now(),
-      uploadedAt: new Date().toISOString()
-    };
-  },
-
-  async connectInstagram(): Promise<InstagramConnection> {
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    return {
-      status: InstagramConnectionStatus.CONNECTED,
-      handle: '@arjun_captures',
-      followers: 2500,
-      posts: 150,
-      lastSync: new Date().toISOString()
-    };
-  },
-
-  async loadAnalytics(): Promise<ProfileAnalytics> {
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    return {
-      profileViews: 1250,
-      profileSaves: 89,
-      contactRequests: 45,
-      completionRate: 85,
-      viewsThisMonth: [
-        { date: '2024-01-01', views: 45 },
-        { date: '2024-01-02', views: 52 },
-        { date: '2024-01-03', views: 38 },
-        { date: '2024-01-04', views: 61 },
-        { date: '2024-01-05', views: 55 },
-        { date: '2024-01-06', views: 48 },
-        { date: '2024-01-07', views: 42 }
-      ],
-      recommendations: [
-        'Add more portfolio images to increase engagement',
-        'Complete your equipment list to attract more clients',
-        'Update your availability calendar regularly',
-        'Consider upgrading to Pro for better visibility'
-      ]
-    };
-  }
-};
 
 export const useProfileManagementStore = create<ProfileManagementStore>((set, get) => ({
   // Initial state
@@ -307,9 +203,36 @@ export const useProfileManagementStore = create<ProfileManagementStore>((set, ge
   loadProfile: async (userId) => {
     set({ isLoading: true, error: null });
     try {
-      const profileData = await mockAPI.loadProfile(userId);
+      const profileData = await profileManagementService.profile.loadProfile(userId);
       set({ profileDraft: profileData });
+
+      // Also load other data
+      const analytics = await profileManagementService.analytics.getProfileAnalytics();
+      set({
+        analytics: {
+          profileViews: analytics.totalViews,
+          profileSaves: analytics.profileSavesCount,
+          contactRequests: analytics.contactRequestsCount,
+          completionRate: analytics.profileCompletionPercent,
+          viewsThisMonth: [], // Need to map this if service returns it
+          recommendations: []
+        }
+      });
+
+      // Load portfolio
+      const portfolioItems = await profileManagementService.portfolio.getPortfolioItems(userId);
+      set({
+        portfolioState: portfolioItems.map(item => ({
+          id: item.id,
+          url: item.imageUrl,
+          caption: item.title,
+          order: item.displayOrder,
+          uploadedAt: item.createdAt
+        }))
+      });
+
     } catch (error) {
+      console.error(error);
       set({ error: 'Failed to load profile' });
     } finally {
       set({ isLoading: false });
@@ -319,9 +242,10 @@ export const useProfileManagementStore = create<ProfileManagementStore>((set, ge
   saveProfile: async (data) => {
     set({ isSaving: true, error: null });
     try {
-      await mockAPI.saveProfile(data);
+      await profileManagementService.profile.saveProfile(data);
       set({ profileDraft: data });
     } catch (error) {
+      console.error(error);
       set({ error: 'Failed to save profile' });
       throw error;
     } finally {
@@ -340,7 +264,7 @@ export const useProfileManagementStore = create<ProfileManagementStore>((set, ge
   saveEquipment: async (equipment) => {
     set({ isSaving: true, error: null });
     try {
-      await mockAPI.saveEquipment(equipment);
+      await profileManagementService.profile.saveEquipment(equipment);
       set({ equipmentDraft: equipment });
     } catch (error) {
       set({ error: 'Failed to save equipment' });
@@ -374,7 +298,7 @@ export const useProfileManagementStore = create<ProfileManagementStore>((set, ge
   savePricing: async (pricing) => {
     set({ isSaving: true, error: null });
     try {
-      await mockAPI.savePricing(pricing);
+      await profileManagementService.profile.savePricing(pricing);
       set({ pricingDraft: pricing });
     } catch (error) {
       set({ error: 'Failed to save pricing' });
@@ -395,7 +319,9 @@ export const useProfileManagementStore = create<ProfileManagementStore>((set, ge
   savePrivacy: async (settings) => {
     set({ isSaving: true, error: null });
     try {
-      await mockAPI.savePrivacy(settings);
+      // Not implemented in backend yet, just update local state
+      // await profileManagementService.savePrivacy(settings);
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
       set({ privacySettings: settings });
     } catch (error) {
       set({ error: 'Failed to save privacy settings' });
@@ -414,8 +340,9 @@ export const useProfileManagementStore = create<ProfileManagementStore>((set, ge
   savePortfolio: async (portfolio) => {
     set({ isSaving: true, error: null });
     try {
-      // Mock save
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Reorder items
+      const ids = portfolio.map(p => p.id);
+      await profileManagementService.portfolio.reorderPortfolioItems(ids);
       set({ portfolioState: portfolio });
     } catch (error) {
       set({ error: 'Failed to save portfolio' });
@@ -428,10 +355,17 @@ export const useProfileManagementStore = create<ProfileManagementStore>((set, ge
   uploadPortfolioImage: async (file) => {
     set({ isSaving: true, error: null });
     try {
-      const newItem = await mockAPI.uploadPortfolioImage(file);
+      const newItem = await profileManagementService.portfolio.uploadPortfolioImage(file);
       const currentPortfolio = get().portfolioState;
-      set({ portfolioState: [...currentPortfolio, newItem] });
-      return newItem;
+      const mappedItem: PortfolioItem = {
+        id: newItem.id,
+        url: newItem.imageUrl,
+        caption: newItem.title,
+        order: newItem.displayOrder,
+        uploadedAt: newItem.createdAt
+      };
+      set({ portfolioState: [...currentPortfolio, mappedItem] });
+      return mappedItem;
     } catch (error) {
       set({ error: 'Failed to upload image' });
       throw error;
@@ -445,25 +379,52 @@ export const useProfileManagementStore = create<ProfileManagementStore>((set, ge
   },
 
   deletePortfolioItem: async (itemId) => {
-    const currentPortfolio = get().portfolioState;
-    const updatedPortfolio = currentPortfolio.filter(item => item.id !== itemId);
-    await get().savePortfolio(updatedPortfolio);
+    set({ isSaving: true, error: null });
+    try {
+      await profileManagementService.portfolio.deletePortfolioItem(itemId);
+      const currentPortfolio = get().portfolioState;
+      const updatedPortfolio = currentPortfolio.filter(item => item.id !== itemId);
+      set({ portfolioState: updatedPortfolio });
+    } catch (error) {
+      set({ error: 'Failed to delete portfolio item' });
+      throw error;
+    } finally {
+      set({ isSaving: false });
+    }
   },
 
   updatePortfolioCaption: async (itemId, caption) => {
-    const currentPortfolio = get().portfolioState;
-    const updatedPortfolio = currentPortfolio.map(item =>
-      item.id === itemId ? { ...item, caption } : item
-    );
-    await get().savePortfolio(updatedPortfolio);
+    set({ isSaving: true, error: null });
+    try {
+      await profileManagementService.portfolio.updatePortfolioItem(itemId, { title: caption });
+      const currentPortfolio = get().portfolioState;
+      const updatedPortfolio = currentPortfolio.map(item =>
+        item.id === itemId ? { ...item, caption } : item
+      );
+      set({ portfolioState: updatedPortfolio });
+    } catch (error) {
+      set({ error: 'Failed to update portfolio item' });
+      throw error;
+    } finally {
+      set({ isSaving: false });
+    }
   },
 
   // Instagram actions
   connectInstagram: async () => {
     set({ isSaving: true, error: null });
     try {
-      const connection = await mockAPI.connectInstagram();
-      set({ instagramConnection: connection });
+      // Mock for now as it requires OAuth flow
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      set({
+        instagramConnection: {
+          status: InstagramConnectionStatus.CONNECTED,
+          handle: '@mock_handle',
+          followers: 1000,
+          posts: 50,
+          lastSync: new Date().toISOString()
+        }
+      });
     } catch (error) {
       set({ error: 'Failed to connect Instagram' });
       throw error;
@@ -476,7 +437,7 @@ export const useProfileManagementStore = create<ProfileManagementStore>((set, ge
     set({ isSaving: true, error: null });
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
-      set({ 
+      set({
         instagramConnection: {
           status: InstagramConnectionStatus.NOT_CONNECTED,
           handle: null,
@@ -498,7 +459,7 @@ export const useProfileManagementStore = create<ProfileManagementStore>((set, ge
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
       const currentConnection = get().instagramConnection;
-      set({ 
+      set({
         instagramConnection: {
           ...currentConnection,
           lastSync: new Date().toISOString()
@@ -518,7 +479,7 @@ export const useProfileManagementStore = create<ProfileManagementStore>((set, ge
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
       const currentVerification = get().verificationData;
-      set({ 
+      set({
         verificationData: {
           ...currentVerification,
           [type]: VerificationStatus.PENDING
@@ -548,8 +509,17 @@ export const useProfileManagementStore = create<ProfileManagementStore>((set, ge
   loadAnalytics: async (dateRange) => {
     set({ isLoading: true, error: null });
     try {
-      const analytics = await mockAPI.loadAnalytics();
-      set({ analytics });
+      const analytics = await profileManagementService.analytics.getProfileAnalytics();
+      set({
+        analytics: {
+          profileViews: analytics.totalViews,
+          profileSaves: analytics.profileSavesCount,
+          contactRequests: analytics.contactRequestsCount,
+          completionRate: analytics.profileCompletionPercent,
+          viewsThisMonth: [],
+          recommendations: []
+        }
+      });
     } catch (error) {
       set({ error: 'Failed to load analytics' });
     } finally {
@@ -559,14 +529,11 @@ export const useProfileManagementStore = create<ProfileManagementStore>((set, ge
 
   trackProfileView: async () => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 200));
-      const currentAnalytics = get().analytics;
-      set({ 
-        analytics: {
-          ...currentAnalytics,
-          profileViews: currentAnalytics.profileViews + 1
-        }
-      });
+      // We need professional ID, but store doesn't have it easily accessible in this action context without passing it.
+      // Assuming we track view for the currently loaded profile? But trackProfileView usually happens when viewing SOMEONE ELSE's profile.
+      // The store seems to be for managing OWN profile.
+      // So maybe this action is redundant here or should be called with an ID.
+      // For now, silent fail or mock.
     } catch (error) {
       // Silent fail for tracking
     }
@@ -590,7 +557,7 @@ export const useProfileManagementStore = create<ProfileManagementStore>((set, ge
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
       // Update availability preview based on new data
-      set({ 
+      set({
         availabilityPreview: {
           ...get().availabilityPreview,
           ...data

@@ -91,15 +91,15 @@ export const ProfilePage: React.FC = () => {
   };
 
   const handleProfileUpdated = (updatedUser: any) => {
-    // In a real app, this would update the user in the store
     console.log('Profile updated:', updatedUser);
+    setUser(updatedUser);
   };
 
   const handleTierUpgraded = () => {
     // In a real app, this would update the user's tier
     console.log('Tier upgraded to Pro');
   };
-  
+
   const handleLogoutClick = () => {
     setLogoutDialogOpen(true);
   };
@@ -157,7 +157,7 @@ export const ProfilePage: React.FC = () => {
           {currentUser.tier === TierType.PRO && (
             <ProBadge>PRO MEMBER</ProBadge>
           )}
-          
+
           <Stack spacing={2} alignItems="center">
             <Avatar
               src={currentUser.profilePhoto}
@@ -165,7 +165,7 @@ export const ProfilePage: React.FC = () => {
             >
               {currentUser.name.charAt(0)}
             </Avatar>
-            
+
             <Box>
               <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
                 <Typography variant="h5" fontWeight="bold">
@@ -175,11 +175,11 @@ export const ProfilePage: React.FC = () => {
                   <VerifiedIcon color="primary" />
                 )}
               </Stack>
-              
+
               <Typography variant="body1" color="text.secondary" gutterBottom>
                 {currentUser.professionalType}
               </Typography>
-              
+
               <RatingDisplay
                 rating={currentUser.rating}
                 totalReviews={currentUser.totalReviews}
@@ -196,21 +196,21 @@ export const ProfilePage: React.FC = () => {
               >
                 Edit Profile
               </Button>
-              <IconButton 
-                  size="small" 
-                  onClick={() => handleManageProfile(ProfileSection.PRIVACY)}
-                  aria-label="Settings"
-                >
-                  <SettingsIcon />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  onClick={handleLogoutClick}
-                  color="error"
-                  aria-label="Logout"
-                >
-                  <LogoutIcon />
-                </IconButton>
+              <IconButton
+                size="small"
+                onClick={() => handleManageProfile(ProfileSection.PRIVACY)}
+                aria-label="Settings"
+              >
+                <SettingsIcon />
+              </IconButton>
+              <IconButton
+                size="small"
+                onClick={handleLogoutClick}
+                color="error"
+                aria-label="Logout"
+              >
+                <LogoutIcon />
+              </IconButton>
             </Stack>
           </Stack>
         </ProfileHeader>
@@ -220,7 +220,7 @@ export const ProfilePage: React.FC = () => {
           <Typography variant="h6" gutterBottom>
             Professional Information
           </Typography>
-          
+
           <Stack spacing={2}>
             <Box>
               <Typography variant="subtitle2" color="text.secondary">
@@ -295,7 +295,7 @@ export const ProfilePage: React.FC = () => {
                 Manage
               </Button>
             </Stack>
-            
+
             <Stack spacing={2}>
               {currentUser.equipment.cameras && currentUser.equipment.cameras.length > 0 && (
                 <Box>
@@ -351,9 +351,9 @@ export const ProfilePage: React.FC = () => {
                 secondary="Update your basic information and professional details"
               />
             </ListItemButton>
-            
+
             <Divider />
-            
+
             <ListItemButton onClick={() => handleManageProfile(ProfileSection.EQUIPMENT)}>
               <ListItemIcon>
                 <PhotoCameraOutlinedIcon />
@@ -365,7 +365,7 @@ export const ProfilePage: React.FC = () => {
             </ListItemButton>
 
             <Divider />
-            
+
             <ListItemButton onClick={() => handleManageProfile(ProfileSection.PRICING)}>
               <ListItemIcon>
                 <PhotoCameraOutlinedIcon />
@@ -375,9 +375,9 @@ export const ProfilePage: React.FC = () => {
                 secondary="Configure your rates and pricing structure"
               />
             </ListItemButton>
-            
+
             <Divider />
-            
+
             <ListItemButton onClick={() => handleManageProfile(ProfileSection.TIER)}>
               <ListItemIcon>
                 <VerifiedIcon />
@@ -392,7 +392,7 @@ export const ProfilePage: React.FC = () => {
             </ListItemButton>
 
             <Divider />
-            
+
             <ListItemButton onClick={() => handleManageProfile(ProfileSection.PRIVACY)}>
               <ListItemIcon>
                 <SettingsIcon />
@@ -402,9 +402,9 @@ export const ProfilePage: React.FC = () => {
                 secondary="Manage your privacy settings and notifications"
               />
             </ListItemButton>
-            
+
             <Divider />
-            
+
             <ListItemButton onClick={handleLogoutClick}>
               <ListItemIcon>
                 <LogoutIcon color="error" />
@@ -417,7 +417,7 @@ export const ProfilePage: React.FC = () => {
           </List>
         </Paper>
       </Stack>
-      
+
       {/* Logout Confirmation Dialog */}
       <Dialog
         open={logoutDialogOpen}
@@ -440,17 +440,17 @@ export const ProfilePage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Logout Feedback Snackbar */}
-      <Snackbar 
-        open={logoutSnackbarOpen} 
-        autoHideDuration={3000} 
+      <Snackbar
+        open={logoutSnackbarOpen}
+        autoHideDuration={3000}
         onClose={() => setLogoutSnackbarOpen(false)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert 
-          onClose={() => setLogoutSnackbarOpen(false)} 
-          severity={logoutError ? "error" : "success"} 
+        <Alert
+          onClose={() => setLogoutSnackbarOpen(false)}
+          severity={logoutError ? "error" : "success"}
           sx={{ width: '100%' }}
         >
           {logoutError || "Successfully logged out!"}

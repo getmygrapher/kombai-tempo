@@ -10,7 +10,7 @@ import { useOnboardingStore } from './store/onboardingStore';
 import { useProfileViewStore } from './store/profileViewStore';
 
 import { EnhancedHomePage } from './components/homepage/EnhancedHomePage';
-import { SearchPage } from './components/search/SearchPage';
+import { SearchPage } from './pages/SearchPage';
 import { JobsPage } from './components/jobs/JobsPage';
 import { JobFeedPage } from './pages/jobs/JobFeedPage';
 import { JobDetailPage } from './pages/jobs/JobDetailPage';

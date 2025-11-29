@@ -9,6 +9,17 @@ import {
   contactRequestsService,
   portfolioService
 } from './profileManagementService';
+import {
+  ProfileViewData,
+  Professional,
+  PortfolioItem as UIPortfolioItem,
+  Review as UIReview,
+  AvailabilityInfo,
+  ViewerPermissions as UIViewerPermissions,
+  LocationInfo,
+  ProfileAnalytics as UIProfileAnalytics,
+  formatResponseTime
+} from '../data/profileViewSystemMockData';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -364,3 +375,99 @@ export const profileViewService = {
 };
 
 export default profileViewService;
+
+// ============================================================================
+// COMPOSED LOADER FOR UI
+// ============================================================================
+
+export async function getProfileViewData(profileId: string): Promise<ProfileViewData | null> {
+  const details = await profileViewService.getProfileDetails(profileId);
+  if (!details) return null;
+
+  const [portfolio, ratings, permissions] = await Promise.all([
+    profileViewService.getPortfolio(profileId, 0, 50),
+    profileViewService.getRatings(profileId, 'recent', 0, 10),
+    profileViewService.calculateViewerPermissions(profileId)
+  ]);
+
+  const professional: Professional = {
+    id: details.userId,
+    name: details.fullName || '',
+    profilePhoto: details.avatarUrl || '',
+    coverPhoto: '',
+    professionalType: details.professionalType || '',
+    category: details.professionalCategory || '',
+    specializations: details.specializations || [],
+    experience: details.experienceLevel || '',
+    location: {
+      city: details.city || '',
+      state: details.state || '',
+      pinCode: details.pinCode || undefined,
+      address: undefined,
+      coordinates: { lat: 0, lng: 0 }
+    } as LocationInfo,
+    about: '',
+    isVerified: !!details.isVerified,
+    tier: 'Free',
+    rating: details.averageRating || 0,
+    totalReviews: details.totalReviews || 0,
+    completedJobs: 0,
+    responseTime: formatResponseTime((details as any).average_response_time || 0),
+    lastActive: details.updatedAt ? new Date(details.updatedAt) : new Date(),
+    joinedDate: details.createdAt ? new Date(details.createdAt) : new Date(),
+    instagramHandle: details.instagramHandle || undefined,
+    portfolioLinks: details.portfolioLinks || []
+  };
+
+  const uiPortfolio: UIPortfolioItem[] = (portfolio || []).map((p: any) => ({
+    id: p.id,
+    type: 'image',
+    url: p.imageUrl,
+    title: p.title || '',
+    description: p.description || '',
+    category: p.category || '',
+    date: p.createdAt ? new Date(p.createdAt) : new Date()
+  }));
+
+  const uiReviews: UIReview[] = (ratings || []).map((r: any) => ({
+    id: r.id,
+    clientName: r.clientName || 'Client',
+    rating: r.rating || 0,
+    comment: r.reviewText || '',
+    date: r.createdAt ? new Date(r.createdAt) : new Date(),
+    projectType: 'General',
+    isVerified: !!r.isVerified
+  }));
+
+  const availability: AvailabilityInfo = {
+    nextAvailable: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    calendar: []
+  };
+
+  const analytics: UIProfileAnalytics = {
+    profileViews: details.totalViews || 0,
+    contactRequests: 0,
+    bookingConversions: 0,
+    averageResponseTime: (details as any).average_response_time || 0,
+    profileCompletionScore: details.profileCompletionPercent || 0
+  };
+
+  const viewerPermissions: UIViewerPermissions = {
+    canViewContact: permissions.canViewContact,
+    canViewInstagram: permissions.canViewInstagram,
+    canViewAvailability: permissions.canViewAvailability,
+    canViewEquipment: true,
+    canSendMessage: permissions.canSendMessage,
+    canViewPricing: permissions.canViewPricing
+  };
+
+  return {
+    professional,
+    portfolio: uiPortfolio,
+    reviews: uiReviews,
+    availability,
+    equipment: (details.equipment as any) || { cameras: [], lenses: [], lighting: [], other: [] },
+    analytics,
+    viewerPermissions
+  };
+}

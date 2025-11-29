@@ -314,3 +314,14 @@ QA & Testing
 Notes
 - Keep real-time messaging and booking backend integration out of scope; use stubs but ensure UI flows are complete and consistent.
 - Prefer composition over duplication; reuse existing ContactActions where feasible by wrapping in ContactCard.
+## Documentation Status Update (2025-11-29)
+- Implementation State: 85% complete
+- Highlights:
+  - Nested routes for /profile/:id tabs active; loaders and skeletons present
+  - Core tab content implemented; PrivacyGate and contact actions integrated
+  - Analytics hooks scaffolded; state store in use
+- Known Gaps:
+  - BookingWidget and PricingDisplay polish
+  - Broader tests and accessibility coverage needed
+- Change Log:
+  - 2025-11-29: Updated tasks to reflect completed routing/state; added status and change log

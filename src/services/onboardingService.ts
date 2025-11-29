@@ -51,20 +51,20 @@ export const onboardingService = {
   async ensureProfileExists(): Promise<void> {
     try {
       const uid = await this.getCurrentUserId();
-      
+
       // Check if profile exists
       const { data: existingProfile } = await supabase
         .from('profiles')
         .select('id')
         .eq('id', uid)
         .single();
-      
+
       // If profile doesn't exist, create it
       if (!existingProfile) {
         const { error } = await supabase
           .from('profiles')
           .insert({ id: uid });
-        
+
         if (error && error.code !== '23505') { // Ignore duplicate key errors
           throw mapError(error);
         }
@@ -139,29 +139,29 @@ export const onboardingService = {
   async completeStep(step: string): Promise<void> {
     try {
       const uid = await this.getCurrentUserId();
-      
+
       // Get current onboarding status
       const { data: existingStatus } = await supabase
-        .from('onboarding_status')
+        .from('onboarding_progress')
         .select('*')
         .eq('user_id', uid)
         .single();
-      
+
       const completedSteps = existingStatus?.completed_steps || [];
       if (!completedSteps.includes(step)) {
         completedSteps.push(step);
       }
-      
+
       // Update onboarding status
       const { error } = await supabase
-        .from('onboarding_status')
+        .from('onboarding_progress')
         .upsert({
           user_id: uid,
           current_step: step,
           completed_steps: completedSteps,
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
-      
+
       if (error) throw mapError(error);
     } catch (error) {
       console.warn('completeStep warning:', error);
@@ -175,17 +175,17 @@ export const onboardingService = {
   } | null> {
     try {
       const uid = await this.getCurrentUserId();
-      
+
       const { data, error } = await supabase
-        .from('onboarding_status')
+        .from('onboarding_progress')
         .select('*')
         .eq('user_id', uid)
         .single();
-      
+
       if (error && error.code !== 'PGRST116') { // Ignore "not found" errors
         throw mapError(error);
       }
-      
+
       return data ? {
         current_step: data.current_step,
         completed_steps: data.completed_steps || [],

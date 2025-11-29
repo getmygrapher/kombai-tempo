@@ -10,8 +10,9 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { ProfileViewProps, ProfileTab } from '../../data/profileViewSystemMockData';
-import { useProfileData } from '../../hooks/useProfileView';
+import { ProfileViewProps, ProfileTab, ProfileViewData } from '../../data/profileViewSystemMockData';
+import { useQuery } from '@tanstack/react-query';
+import { getProfileViewData } from '../../services/profileViewService';
 import { ProfileHero } from './ProfileHero';
 import { ProfileNavigation } from './ProfileNavigation';
 import { ProfileOverview } from './ProfileOverview';
@@ -21,6 +22,8 @@ const ReviewsSection = React.lazy(() => import('./ReviewsSection').then(m => ({ 
 const AvailabilityWidget = React.lazy(() => import('./AvailabilityWidget').then(m => ({ default: m.AvailabilityWidget })));
 import { ContactActions } from './ContactActions';
 import { ImageLightbox } from './ImageLightbox';
+import { useEffect } from 'react';
+import profileViewService from '../../services/profileViewService';
 
 const StyledContainer = styled(Container)(({ theme }) => ({
   paddingTop: theme.spacing(2),
@@ -79,7 +82,12 @@ export const EnhancedProfileViewContainer: React.FC<ProfileViewProps> = ({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  const { data: profileData, isLoading, error } = useProfileData(professionalId);
+  const { data: profileData, isLoading, error } = useQuery<ProfileViewData | null>({
+    queryKey: ['profileViewData', professionalId],
+    queryFn: () => getProfileViewData(professionalId),
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
+  });
 
   const handleTabChange = (tab: ProfileTab) => {
     setActiveTab(tab);
@@ -93,6 +101,10 @@ export const EnhancedProfileViewContainer: React.FC<ProfileViewProps> = ({
   const handleLightboxClose = () => {
     setLightboxOpen(false);
   };
+
+  useEffect(() => {
+    profileViewService.trackView(professionalId, 'direct');
+  }, [professionalId]);
 
   if (isLoading) {
     return (

@@ -2,6 +2,18 @@
 // Replaces mock data with real Supabase operations
 
 import { supabase } from './supabaseClient';
+import {
+  ProfileFormData,
+  EquipmentItem,
+  PricingInfo,
+  Equipment
+} from '../types';
+import {
+  ProfessionalCategory,
+  ExperienceLevel,
+  EquipmentCategory,
+  PricingType
+} from '../types/enums';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -505,7 +517,7 @@ export const contactRequestsService = {
   ): Promise<ContactRequest[]> {
     try {
       const uid = await getCurrentUserId();
-      
+
       const query = supabase
         .from('contact_requests')
         .select('*')
@@ -586,7 +598,7 @@ export const portfolioService = {
   async getPortfolioItems(userId?: string): Promise<PortfolioItem[]> {
     try {
       const targetUserId = userId || await getCurrentUserId();
-      
+
       const { data, error } = await supabase
         .from('portfolio_items')
         .select('*')
@@ -644,7 +656,7 @@ export const portfolioService = {
   async deletePortfolioItem(itemId: string): Promise<{ success: boolean }> {
     try {
       const uid = await getCurrentUserId();
-      
+
       const { error } = await supabase
         .from('portfolio_items')
         .delete()
@@ -668,7 +680,7 @@ export const portfolioService = {
   ): Promise<{ success: boolean }> {
     try {
       const uid = await getCurrentUserId();
-      
+
       const { error } = await supabase
         .from('portfolio_items')
         .update({
@@ -689,6 +701,244 @@ export const portfolioService = {
     } catch (error) {
       throw mapError(error);
     }
+  },
+
+  /**
+   * Upload portfolio image
+   */
+  async uploadPortfolioImage(file: File): Promise<PortfolioItem> {
+    try {
+      const uid = await getCurrentUserId();
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${uid}/${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('portfolio')
+        .upload(filePath, file);
+
+      if (uploadError) throw mapError(uploadError);
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('portfolio')
+        .getPublicUrl(filePath);
+
+      // Create portfolio item record
+      const { itemId } = await this.addPortfolioItem({
+        title: file.name,
+        imageUrl: publicUrl,
+      });
+
+      // Fetch the created item to return full object
+      const items = await this.getPortfolioItems(uid);
+      const createdItem = items.find(i => i.id === itemId);
+
+      if (!createdItem) throw new Error('Failed to retrieve created portfolio item');
+
+      return createdItem;
+    } catch (error) {
+      throw mapError(error);
+    }
+  }
+};
+
+// ============================================================================
+// PROFILE DATA SERVICE
+// ============================================================================
+
+export const profileDataService = {
+  /**
+   * Load full profile data
+   */
+  async loadProfile(userId: string): Promise<ProfileFormData> {
+    try {
+      // 1. Get current user email if it's the own profile
+      const { data: { user } } = await supabase.auth.getUser();
+      const email = user?.id === userId ? user.email : '';
+
+      // 2. Fetch basic profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (profileError) throw mapError(profileError);
+
+      // 3. Fetch professional profile
+      const { data: professional, error: professionalError } = await supabase
+        .from('professional_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (professionalError && professionalError.code !== 'PGRST116') {
+        throw mapError(professionalError);
+      }
+
+      // 4. Map data to ProfileFormData
+      const equipmentJson = professional?.equipment as Equipment || {};
+      const equipmentItems: EquipmentItem[] = [];
+
+      // Helper to map string arrays to EquipmentItems
+      const mapToItems = (items: string[] | undefined, category: EquipmentCategory) => {
+        if (!items) return;
+        items.forEach((name, index) => {
+          equipmentItems.push({
+            id: `${category}-${index}`,
+            category,
+            name,
+            isIndoorCapable: true, // Default
+            isOutdoorCapable: true // Default
+          });
+        });
+      };
+
+      mapToItems(equipmentJson.cameras, EquipmentCategory.CAMERAS);
+      mapToItems(equipmentJson.lenses, EquipmentCategory.LENSES);
+      mapToItems(equipmentJson.lighting, EquipmentCategory.LIGHTING);
+      mapToItems(equipmentJson.other, EquipmentCategory.OTHER);
+
+      const pricingJson = professional?.pricing as any;
+      const pricing: PricingInfo | undefined = pricingJson ? {
+        type: pricingJson.type as PricingType,
+        rate: pricingJson.rate,
+        isNegotiable: pricingJson.isNegotiable
+      } : undefined;
+
+      return {
+        basicInfo: {
+          name: profile.full_name || '',
+          email: email || '',
+          phone: profile.phone || '',
+          profilePhoto: profile.avatar_url || '',
+          // Gender not in schema yet
+        },
+        location: {
+          city: professional?.city || '',
+          state: professional?.state || '',
+          pinCode: professional?.pin_code || '',
+          address: '', // Not in schema
+          preferredWorkLocations: professional?.additional_locations?.map((l: any) => l.city || '') || [],
+        },
+        professional: {
+          category: professional?.selected_category as ProfessionalCategory,
+          type: professional?.selected_type || '',
+          specializations: professional?.specializations || [],
+          experience: professional?.experience_level as ExperienceLevel,
+          about: '', // Not in schema
+          instagramHandle: professional?.instagram_handle || '',
+        },
+        equipment: equipmentItems,
+        pricing: pricing
+      };
+    } catch (error) {
+      throw mapError(error);
+    }
+  },
+
+  /**
+   * Save full profile data
+   */
+  async saveProfile(data: ProfileFormData): Promise<void> {
+    const uid = await getCurrentUserId();
+
+    // 1. Update profiles table
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert({
+        id: uid,
+        full_name: data.basicInfo.name,
+        avatar_url: data.basicInfo.profilePhoto,
+        phone: data.basicInfo.phone,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (profileError) throw mapError(profileError);
+
+    // 2. Map EquipmentItems back to Equipment JSON structure
+    const equipmentJson: Equipment = {
+      cameras: [],
+      lenses: [],
+      lighting: [],
+      other: []
+    };
+
+    data.equipment.forEach(item => {
+      if (item.category === EquipmentCategory.CAMERAS) equipmentJson.cameras?.push(item.name);
+      if (item.category === EquipmentCategory.LENSES) equipmentJson.lenses?.push(item.name);
+      if (item.category === EquipmentCategory.LIGHTING) equipmentJson.lighting?.push(item.name);
+      if (item.category === EquipmentCategory.OTHER) equipmentJson.other?.push(item.name);
+    });
+
+    // 3. Update professional_profiles table
+    const { error: professionalError } = await supabase
+      .from('professional_profiles')
+      .upsert({
+        user_id: uid,
+        selected_category: data.professional.category,
+        selected_type: data.professional.type,
+        experience_level: data.professional.experience,
+        specializations: data.professional.specializations,
+        instagram_handle: data.professional.instagramHandle,
+        city: data.location.city,
+        state: data.location.state,
+        pin_code: data.location.pinCode,
+        equipment: equipmentJson as any,
+        pricing: data.pricing,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (professionalError) throw mapError(professionalError);
+  },
+
+  /**
+   * Save equipment only
+   */
+  async saveEquipment(equipment: EquipmentItem[]): Promise<void> {
+    const uid = await getCurrentUserId();
+
+    // Map EquipmentItems back to Equipment JSON structure
+    const equipmentJson: Equipment = {
+      cameras: [],
+      lenses: [],
+      lighting: [],
+      other: []
+    };
+
+    equipment.forEach(item => {
+      if (item.category === EquipmentCategory.CAMERAS) equipmentJson.cameras?.push(item.name);
+      if (item.category === EquipmentCategory.LENSES) equipmentJson.lenses?.push(item.name);
+      if (item.category === EquipmentCategory.LIGHTING) equipmentJson.lighting?.push(item.name);
+      if (item.category === EquipmentCategory.OTHER) equipmentJson.other?.push(item.name);
+    });
+
+    const { error } = await supabase
+      .from('professional_profiles')
+      .update({
+        equipment: equipmentJson as any,
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', uid);
+
+    if (error) throw mapError(error);
+  },
+
+  /**
+   * Save pricing only
+   */
+  async savePricing(pricing: PricingInfo): Promise<void> {
+    const uid = await getCurrentUserId();
+
+    const { error } = await supabase
+      .from('professional_profiles')
+      .update({
+        pricing: pricing as any,
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', uid);
+
+    if (error) throw mapError(error);
   }
 };
 
@@ -697,6 +947,7 @@ export const portfolioService = {
 // ============================================================================
 
 export const profileManagementService = {
+  profile: profileDataService,
   ratings: ratingsService,
   analytics: profileAnalyticsService,
   savedProfiles: savedProfilesService,

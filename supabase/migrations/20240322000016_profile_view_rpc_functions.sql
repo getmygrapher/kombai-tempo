@@ -786,7 +786,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Grant execute permissions
-GRANT EXECUTE ON FUNCTION public.get_profile_details TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_profile_details TO authenticated, anon;
 GRANT EXECUTE ON FUNCTION public.get_profile_portfolio TO authenticated;
 GRANT EXECUTE ON FUNCTION public.submit_rating TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_professional_ratings TO authenticated, anon;
